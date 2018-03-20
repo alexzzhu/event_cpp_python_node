@@ -6,7 +6,8 @@ from ruamel.yaml import YAML
 
 import rospy
 from std_msgs.msg import Float64MultiArray
-from event_cpp_python_node.msg import EventTimeImage
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
 class EventCppPython:
     """
@@ -24,9 +25,11 @@ class EventCppPython:
         self._load_calib(bag_folder_path, calib_file)
 
         self._t_start = None
+        
+        self._bridge = CvBridge()
     
         rospy.Subscriber("event_time_image",
-                         EventTimeImage,
+                         Image,
                          self._event_time_image_callback,
                          buff_size=10000000)
         
@@ -39,28 +42,14 @@ class EventCppPython:
                             (n_rows, n_cols))
         return arr_np
         
-    def _event_time_image_callback(self, event_time_image_msg):
-        time = rospy.Time.now()
-        pos_count_img_msg = event_time_image_msg.pos_count_img
-        neg_count_img_msg = event_time_image_msg.neg_count_img
-        pos_time_img_msg = event_time_image_msg.pos_time_img
-        neg_time_img_msg = event_time_image_msg.neg_time_img
-        
-        pos_count_img = self._ros_array_to_np(pos_count_img_msg)
-        neg_count_img = self._ros_array_to_np(neg_count_img_msg)
-        pos_time_img = self._ros_array_to_np(pos_time_img_msg)
-        neg_time_img = self._ros_array_to_np(neg_time_img_msg)
+    def _event_time_image_callback(self, event_time_image_msg):       
+        try:
+            event_time_image = self._bridge.imgmsg_to_cv2(event_time_image_msg, "32FC4")
+        except CvBridgeError as e:
+            print(e)
 
-        max_time = max(pos_time_img.max(), neg_time_img.max())
-        min_time = min(pos_time_img[pos_time_img > 0].min(), neg_time_img[neg_time_img > 0].min())
-
-        pos_time_img[pos_time_img > 0] = (pos_time_img[pos_time_img > 0] - min_time) \
-                                         / (max_time - min_time)
-        neg_time_img[neg_time_img > 0] = (neg_time_img[neg_time_img > 0] - min_time) \
-                                         / (max_time - min_time)
-
-        event_time_img = np.stack([pos_count_img, neg_count_img, pos_time_img, neg_time_img],
-                                  axis=0)
+        # Do something with event_time_image
+        return
         
     def _load_calib(self, bag_folder, calib_file):
         self._left_x_rect_map = np.loadtxt(os.path.join(bag_folder,

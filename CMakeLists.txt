@@ -20,11 +20,12 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   rosbag
   message_generation
+  eigen_conversions
   image_transport
 )
 
-find_package(OpenCV 3 REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV 3 REQUIRED)
 # Uncomment below if you want OpenMP.
 
 #find_package(OpenMP)
@@ -116,7 +117,7 @@ catkin_package(
   DEPENDS OpenCV
   INCLUDE_DIRS include
   CATKIN_DEPENDS
-  roscpp std_msgs sensor_msgs cv_bridge geometry_msgs rosbag message_runtime image_transport
+  roscpp std_msgs sensor_msgs cv_bridge geometry_msgs eigen_conversions rosbag message_runtime image_transport
 )
 
 ###########
@@ -128,8 +129,8 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   )
 
 LIST(APPEND LINK_LIBS

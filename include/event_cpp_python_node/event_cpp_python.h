@@ -7,6 +7,11 @@
 #include <vector>
 #include <fstream>
 
+// Eigen
+#include <Eigen/Dense>
+// For aligned_allocators.
+#include <Eigen/StdVector>
+
 // ROS
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
@@ -23,11 +28,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/core/eigen.hpp>
-
-// Eigen
-#include <Eigen/Dense>
-// For aligned_allocators.
-#include <Eigen/StdVector>
 
 // Custom
 #include "event_cpp_python_node/undistorter.h"
