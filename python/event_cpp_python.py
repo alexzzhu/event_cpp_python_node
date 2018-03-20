@@ -5,9 +5,10 @@ import os
 from ruamel.yaml import YAML
 
 import rospy
-from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+
+import cv2
 
 class EventCppPython:
     """
@@ -47,7 +48,9 @@ class EventCppPython:
             event_time_image = self._bridge.imgmsg_to_cv2(event_time_image_msg, "32FC4")
         except CvBridgeError as e:
             print(e)
-
+            
+        cv2.imshow("Event time image", np.amax(event_time_image[:, :, :2], axis=2))
+        cv2.waitKey(1)
         # Do something with event_time_image
         return
         

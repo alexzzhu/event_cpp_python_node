@@ -19,7 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   dvs_msgs
   cv_bridge
   rosbag
-  message_generation
   eigen_conversions
   image_transport
 )
@@ -65,10 +64,9 @@ find_package(OpenCV 3 REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  EventTimeImage.msg
-  )
+#add_message_files(
+#  FILES
+#  )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -85,10 +83,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
-   )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,7 +115,7 @@ catkin_package(
   DEPENDS OpenCV
   INCLUDE_DIRS include
   CATKIN_DEPENDS
-  roscpp std_msgs sensor_msgs cv_bridge geometry_msgs eigen_conversions rosbag message_runtime image_transport
+  roscpp std_msgs sensor_msgs cv_bridge geometry_msgs eigen_conversions rosbag image_transport
 )
 
 ###########

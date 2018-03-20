@@ -31,7 +31,6 @@
 
 // Custom
 #include "event_cpp_python_node/undistorter.h"
-#include "event_cpp_python_node/EventTimeImage.h"
 
 namespace event_cpp_python_node {
   class EventCppPython{
