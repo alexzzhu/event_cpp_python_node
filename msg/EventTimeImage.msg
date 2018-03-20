@@ -1,0 +1,5 @@
+std_msgs/Header header
+std_msgs/Float64MultiArray pos_count_img
+std_msgs/Float64MultiArray neg_count_img
+std_msgs/Float64MultiArray pos_time_img
+std_msgs/Float64MultiArray neg_time_img
