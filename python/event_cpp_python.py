@@ -49,7 +49,7 @@ class EventCppPython:
         except CvBridgeError as e:
             print(e)
             
-        cv2.imshow("Event time image", np.amax(event_time_image[:, :, :2], axis=2))
+        cv2.imshow("Event time image", event_time_image)
         cv2.waitKey(1)
         # Do something with event_time_image
         return
