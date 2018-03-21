@@ -143,14 +143,16 @@ void EventCppPython::generateEventMatrix(const std::vector<Eigen::Vector4f,
 }
 
 // Converts an Eigen::MatrixXf into a std_msgs::Float64MultiArray message and publishes it.
-void EventCppPython::generateAndSendRequest(const ros::Time& curr_time)
+void EventCppPython::generateAndSendRequest(const std::vector<Eigen::Vector4f, 
+                                            Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec,
+                                            const ros::Time& curr_time)
 {
-  sensor_msgs::ImagePtr image_msg = cv_bridge::CvImage(std_msgs::Header(),
+  /*sensor_msgs::ImagePtr image_msg = cv_bridge::CvImage(std_msgs::Header(),
                                                        "32FC4",
                                                        event_timestamp_image_).toImageMsg();
 
   image_msg->header.stamp = curr_time;
-  event_time_image_pub_.publish(image_msg);
+  event_time_image_pub_.publish(image_msg);*/
 }
   
 // Receives event messages, rectifies them, and then stores them in the appropriate vector.
@@ -186,25 +188,25 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
 
     // Store the event in event_vec.
     float t = static_cast<float>((event.ts - t_start_).toSec());
-    bool pol = event.polarity;
-    cv::Vec4f& pixel = event_timestamp_image_.at<cv::Vec4f>(y_rect, x_rect);
-    //event_vec.push_back(Eigen::Vector4f(x_rect, y_rect, t, pol));
-    if (pol == 1) {
+    float pol = event.polarity;
+    //cv::Vec4f& pixel = event_timestamp_image_.at<cv::Vec4f>(y_rect, x_rect);
+    event_vec.push_back(Eigen::Vector4f(x_rect, y_rect, t, pol));
+    /*if (pol == 1) {
       pixel.val[2] = t;
       ++pixel.val[0];
     } else {
       pixel.val[3] = t;
       ++pixel.val[1];
-    }
+    }*/
   }
 
   n_events_ += events.size();
 
   // If we have enough events, publish and reset event images.
   if (n_events_ > n_events_per_window_) {
-    generateAndSendRequest(events.back().ts);
-
-    event_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
+    generateAndSendRequest(event_vec, events.back().ts);
+    event_vec.clear();
+    //event_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
     n_events_ = 0;
   }
   
