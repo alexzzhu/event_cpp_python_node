@@ -15,15 +15,23 @@ EventCppPython::EventCppPython(ros::NodeHandle nh,
 { 
     nh_priv.getParam("n_events_per_window", n_events_per_window_);
     nh_priv.getParam("start_time", start_time_);
-
+    nh_priv.getParam("pub_event_arr", pub_event_arr_);
+    
     XmlRpc::XmlRpcValue lines;
     nh_priv.getParam("cam1/projection_matrix", lines);
     baseline_ = static_cast<double>(lines[0][3]);
   
     left_undistorter_.resolution(&rows_, &cols_);
-    event_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
-  
-    event_time_image_pub_ = it_.advertise("event_time_image", 1000);
+
+    if (pub_event_arr_) {
+        left_event_arr_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("left/event_arr", 1000);
+        right_event_arr_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("right/event_arr", 1000);
+    } else {
+        left_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
+        left_event_time_image_pub_ = it_.advertise("left/event_time_image", 1000);
+        right_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
+        right_event_time_image_pub_ = it_.advertise("right/event_time_image", 1000);
+    }
   
     ROS_INFO("event_cpp_python initialized.");
 } // End EventCppPython constructor.
@@ -84,14 +92,21 @@ void EventCppPython::playFromBag(const std::string& data_bag_path,
                 if (topic == left_events) {
                     eventCallback(event_ptr,
                                   left_undistorter_,
-                                  left_event_vec_);
+                                  left_event_arr_pub_,
+                                  left_event_time_image_pub_,
+                                  left_event_vec_,
+                                  left_timestamp_image_);
                 }
                 // Uncomment this if you want stereo event processing.
                 /*
                   else {
                   eventCallback(event_ptr,
                   right_undistorter_,
-                  right_event_vec_);
+                  right_event_arr_pub_,
+                  right_event_time_image_pub_,
+                  right_event_vec_,
+                  right_timestamp_image_
+                  );
                   }
                 */
             }
@@ -129,35 +144,38 @@ void EventCppPython::generateEventMatrix(const std::vector<Eigen::Vector4f,
                                          Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec,
                                          Eigen::MatrixXf& events)
 {
-    int first_iter = event_vec.size() - n_events_per_window_;
     if (events.cols() != n_events_per_window_) {
         ROS_ERROR("Error: You need to set the size of the input events correctly before calling generateEventMatrix");
         ros::shutdown();
     }
 
-    for (int i=first_iter; i < event_vec.size(); ++i) {
-        events.col(i-first_iter) = event_vec[i];
+    for (int i=0; i < n_events_per_window_; ++i) {
+        events.col(i) = event_vec[i];
     }
 
     return;
 }
 
 // Converts an Eigen::MatrixXf into a std_msgs::Float64MultiArray message and publishes it.
-void EventCppPython::generateAndSendRequest(const ros::Time& curr_time)
+void EventCppPython::generateAndSendRequest(const ros::Publisher& event_arr_pub,
+                                            const std::vector<Eigen::Vector4f,
+                                            Eigen::aligned_allocator<Eigen::Vector4f>> event_vec)
 {
-    sensor_msgs::ImagePtr image_msg = cv_bridge::CvImage(std_msgs::Header(),
-                                                         "32FC4",
-                                                         event_timestamp_image_).toImageMsg();
-
-    image_msg->header.stamp = curr_time;
-    event_time_image_pub_.publish(image_msg);
+    Eigen::MatrixXf event_mat(4, n_events_per_window_);;
+    generateEventMatrix(event_vec, event_mat);
+    std_msgs::Float64MultiArray event_arr_msg;
+    tf::matrixEigenToMsg(event_mat.cast<double>().eval(), event_arr_msg);
+    event_arr_pub.publish(event_arr_msg);
 }
   
 // Receives event messages, rectifies them, and then stores them in the appropriate vector.
 void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_msg,
                                    const Undistorter& undistorter,
+                                   const ros::Publisher& event_arr_pub,
+                                   const image_transport::Publisher& event_time_image_pub,
                                    std::vector<Eigen::Vector4f, 
-                                   Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec) 
+                                   Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec,
+                                   cv::Mat& event_timestamp_image)    
 {
     // If no events, just return.
     if (event_msg->events.size() == 0) return;
@@ -184,17 +202,21 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
             continue;
         }
 
-        // Store the event in event_vec.
         float t = static_cast<float>((event.ts - t_start_).toSec());
-        bool pol = event.polarity;
-        cv::Vec4f& pixel = event_timestamp_image_.at<cv::Vec4f>(y_rect, x_rect);
-        //event_vec.push_back(Eigen::Vector4f(x_rect, y_rect, t, pol));
-        if (pol == 1) {
-            pixel.val[2] = t;
-            ++pixel.val[0];
+        int pol = event.polarity ? 1:-1;
+        
+        // Store the event in event_vec.
+        if (pub_event_arr_) {
+            event_vec.push_back(Eigen::Vector4f(x_rect, y_rect, t, pol));
         } else {
-            pixel.val[3] = t;
-            ++pixel.val[1];
+            cv::Vec4f& pixel = event_timestamp_image.at<cv::Vec4f>(y_rect, x_rect);
+            if (pol == 1) {
+                pixel.val[2] = t;
+                ++pixel.val[0];
+            } else {
+                pixel.val[3] = t;
+                ++pixel.val[1];
+            }
         }
     }
 
@@ -202,9 +224,18 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
 
     // If we have enough events, publish and reset event images.
     if (n_events_ > n_events_per_window_) {
-        generateAndSendRequest(events.back().ts);
-
-        event_timestamp_image_ = cv::Mat::zeros(rows_, cols_, CV_32FC4);
+        if (pub_event_arr_) {
+            generateAndSendRequest(event_arr_pub, event_vec);
+            event_vec.erase(event_vec.begin(), event_vec.begin() + n_events_per_window_);
+        } else {
+            sensor_msgs::ImagePtr image_msg = cv_bridge::CvImage(std_msgs::Header(),
+                                                                 "32FC4",
+                                                                 event_timestamp_image)
+                .toImageMsg();
+            image_msg->header.stamp = events.back().ts;
+            event_time_image_pub.publish(image_msg);
+            event_timestamp_image = cv::Mat::zeros(rows_, cols_, CV_32FC4);
+        }
         n_events_ = 0;
     }
   

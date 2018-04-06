@@ -13,10 +13,12 @@ def main():
     n_events_per_window = rospy.get_param("~n_events_per_window")   
     bag_folder_path = rospy.get_param("~bag_folder_path")
     sequence = rospy.get_param("~sequence")
+    pub_event_arr = rospy.get_param("~pub_event_arr")
     
     event_cpp_python = EventCppPython(bag_folder_path,
                                       sequence,
-                                      n_events_per_window)
+                                      n_events_per_window,
+                                      pub_event_arr)
 
     print("Setup done, waiting for events.")
     rospy.spin()

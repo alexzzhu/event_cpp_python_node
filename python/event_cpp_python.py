@@ -5,6 +5,7 @@ import os
 from ruamel.yaml import YAML
 
 import rospy
+from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -18,6 +19,7 @@ class EventCppPython:
                  bag_folder_path,
                  calib_file,
                  n_events_per_window,
+                 pub_event_arr=True,
                  image_size=[260, 346]):
         self._n_events_per_window = n_events_per_window
         self._image_size = image_size
@@ -28,11 +30,16 @@ class EventCppPython:
         self._t_start = None
         
         self._bridge = CvBridge()
-    
-        rospy.Subscriber("event_time_image",
-                         Image,
-                         self._event_time_image_callback,
-                         buff_size=10000000)
+        if pub_event_arr:
+            rospy.Subscriber("left/event_arr",
+                             Float64MultiArray,
+                             self._event_arr_callback,
+                             buff_size=10000000)
+        else:
+            rospy.Subscriber("left/event_time_image",
+                             Image,
+                             self._event_time_image_callback,
+                             buff_size=10000000)
         
         print ("Setup done, waiting for events.")
 
@@ -42,7 +49,13 @@ class EventCppPython:
         arr_np = np.reshape(np.array(ros_msg.data),
                             (n_rows, n_cols))
         return arr_np
-        
+
+    def _event_arr_callback(self, event_arr_msg):
+        events_np = np.reshape(np.array(event_arr_msg.data),
+                               (4, event_arr_msg.layout.dim[1].size))
+        print("Received {} events".format(events_np.shape[1]))
+        return
+    
     def _event_time_image_callback(self, event_time_image_msg):       
         try:
             event_time_image = self._bridge.imgmsg_to_cv2(event_time_image_msg, "32FC4")

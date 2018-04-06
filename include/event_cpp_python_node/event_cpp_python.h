@@ -24,6 +24,7 @@
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <cv_bridge/cv_bridge.h>
+#include <eigen_conversions/eigen_msg.h>
 
 // OpenCV
 #include <opencv2/opencv.hpp>
@@ -43,8 +44,8 @@ public:
 private:
     // ROS stuff.
     ros::NodeHandle nh_;
-    ros::Publisher event_arr_pub_;
-    image_transport::Publisher event_time_image_pub_;
+    ros::Publisher left_event_arr_pub_, right_event_arr_pub_;
+    image_transport::Publisher left_event_time_image_pub_, right_event_time_image_pub_;
     image_transport::ImageTransport it_;
     // Objects.
     // Stores camera info, rectifies images.
@@ -60,9 +61,10 @@ private:
     int n_events_ = 0;
     // Time of first event.
     ros::Time t_start_ = ros::Time(0);
+    bool pub_event_arr_ = true;
     bool started_ = false;
     Eigen::Vector4f intrinsics_;
-    cv::Mat event_timestamp_image_;
+    cv::Mat left_timestamp_image_, right_timestamp_image_;
 
     std::vector<Eigen::Vector4f, 
                 Eigen::aligned_allocator<Eigen::Vector4f>> left_event_vec_, right_event_vec_;
@@ -75,9 +77,14 @@ private:
     void imuCallback(const sensor_msgs::Imu::ConstPtr& imu_msg);
     void eventCallback(const dvs_msgs::EventArray::ConstPtr& event_msg,
 		       const Undistorter& undistorter,
+                       const ros::Publisher& event_arr_pub,
+                       const image_transport::Publisher& event_time_image_pub,
 		       std::vector<Eigen::Vector4f, 
-		       Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec);
-    void generateAndSendRequest(const ros::Time& curr_time);
+		       Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec,
+                       cv::Mat& event_timestamp_image);
+    void generateAndSendRequest(const ros::Publisher& event_arr_pub,
+                                const std::vector<Eigen::Vector4f,
+                                Eigen::aligned_allocator<Eigen::Vector4f>> event_vec);
     void waitAndProcessResponse(const cv::Mat& gt_depth, const Eigen::MatrixXf& left_events);
     void disparityResultsCallback(const sensor_msgs::ImageConstPtr disparity_msg,
                                   const sensor_msgs::ImageConstPtr deblurred_image_msg);

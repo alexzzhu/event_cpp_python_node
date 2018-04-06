@@ -5,6 +5,7 @@
   <arg name="n_events_per_window" default="30000"/>
   <arg name="start_time" default="9.5"/>
 
+  <arg name="pub_event_arr" default="false"/>
   <arg name="bag_folder_path" default="/mnt/data/mvsec_data/indoor_flying"/>
   <arg name="sequence" default="indoor_flying1"/>
   <arg name="calib_sequence" default="indoor_flying"/>
@@ -18,11 +19,13 @@
     <param name="gt_bag_path" type="str" value="$(arg gt_bag_path)"/>
     <param name="n_events_per_window" type="int" value="$(arg n_events_per_window)"/>
     <param name="start_time" type="double" value="$(arg start_time)"/>
+    <param name="pub_event_arr" type="bool" value="$(arg pub_event_arr)"/>
   </node>
 
   <node pkg="event_cpp_python_node" type="event_cpp_python_pynode.py" name="event_python_node" required="true" output="screen">
     <param name="n_events_per_window" type="int" value="$(arg n_events_per_window)"/>
     <param name="bag_folder_path" type="str" value="$(arg bag_folder_path)"/>
     <param name="sequence" type="str" value="$(arg calib_sequence)"/>
-    </node>
+    <param name="pub_event_arr" type="bool" value="$(arg pub_event_arr)"/>
+  </node>
 </launch>
