@@ -15,6 +15,7 @@
 // ROS
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -33,15 +34,16 @@
 #include "event_cpp_python_node/undistorter.h"
 
 namespace event_cpp_python_node {
-  class EventCppPython{
- public:
+class EventCppPython{
+public:
     EventCppPython(ros::NodeHandle nh, ros::NodeHandle nh_priv);
     ~EventCppPython();
     void playFromBag(const std::string& data_bag_path,
 		     const std::string& gt_bag_path);
-  private:
+private:
     // ROS stuff.
     ros::NodeHandle nh_;
+    ros::Publisher event_arr_pub_;
     image_transport::Publisher event_time_image_pub_;
     image_transport::ImageTransport it_;
     // Objects.
@@ -63,7 +65,7 @@ namespace event_cpp_python_node {
     cv::Mat event_timestamp_image_;
 
     std::vector<Eigen::Vector4f, 
-      Eigen::aligned_allocator<Eigen::Vector4f>> left_event_vec_, right_event_vec_;
+                Eigen::aligned_allocator<Eigen::Vector4f>> left_event_vec_, right_event_vec_;
     
     void generateEventMatrix(const std::vector<Eigen::Vector4f, 
                              Eigen::aligned_allocator<Eigen::Vector4f>>& event_vec,
@@ -79,5 +81,5 @@ namespace event_cpp_python_node {
     void waitAndProcessResponse(const cv::Mat& gt_depth, const Eigen::MatrixXf& left_events);
     void disparityResultsCallback(const sensor_msgs::ImageConstPtr disparity_msg,
                                   const sensor_msgs::ImageConstPtr deblurred_image_msg);
-    };
+};
 } // namespace
