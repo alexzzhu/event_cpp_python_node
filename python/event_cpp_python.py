@@ -51,9 +51,8 @@ class EventCppPython:
         return arr_np
 
     def _event_arr_callback(self, event_arr_msg):
-        events_np = np.reshape(np.array(event_arr_msg.data),
-                               (4, event_arr_msg.layout.dim[1].size))
-        print("Received {} events".format(events_np.shape[1]))
+        events_np = _ros_array_to_np(event_arr_msg)
+        print("Received events with size {}, {}".format(events_np.shape[0], events_np.shape[1]))
         return
     
     def _event_time_image_callback(self, event_time_image_msg):       
