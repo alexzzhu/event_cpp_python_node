@@ -21,10 +21,13 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <dvs_msgs/Event.h>
 #include <dvs_msgs/EventArray.h>
-#include <rosbag/bag.h>
-#include <rosbag/view.h>
 #include <cv_bridge/cv_bridge.h>
 #include <eigen_conversions/eigen_msg.h>
+
+// Message filter subscribers
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
 
 // OpenCV
 #include <opencv2/opencv.hpp>
@@ -35,12 +38,10 @@
 #include "event_cpp_python_node/undistorter.h"
 
 namespace event_cpp_python_node {
-class EventCppPython{
+class EventCppPythonLive{
 public:
-    EventCppPython(ros::NodeHandle nh, ros::NodeHandle nh_priv);
-    ~EventCppPython();
-    void playFromBag(const std::string& data_bag_path,
-		     const std::string& gt_bag_path);
+    EventCppPythonLive(ros::NodeHandle nh, ros::NodeHandle nh_priv);
+    ~EventCppPythonLive();
 private:
     // ROS stuff.
     ros::NodeHandle nh_;
@@ -50,6 +51,14 @@ private:
     image_transport::Publisher left_event_time_image_pub_, right_event_time_image_pub_;
     image_transport::ImageTransport it_;
 
+    // For live subscribers.
+    message_filters::Subscriber<geometry_msgs::PoseStamped> pose_sub_;
+    message_filters::Subscriber<sensor_msgs::Image> depth_sub_;
+    typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::PoseStamped,
+                                                            sensor_msgs::Image> ApproxSyncPolicy;
+    // ApproximateTime takes a queue size as its constructor argument, hence MySyncPolicy(10)
+    message_filters::Synchronizer<ApproxSyncPolicy> sync_;
+    
     // Objects.
     // Stores camera info, rectifies images.
     Undistorter left_undistorter_, right_undistorter_;
@@ -91,5 +100,7 @@ private:
     void waitAndProcessResponse(const cv::Mat& gt_depth, const Eigen::MatrixXf& left_events);
     void disparityResultsCallback(const sensor_msgs::ImageConstPtr disparity_msg,
                                   const sensor_msgs::ImageConstPtr deblurred_image_msg);
+    void poseDepthCallback(const geometry_msgs::PoseStamped::ConstPtr& pose_msg,
+                           const sensor_msgs::Image::ConstPtr& depth_img_msg);
 };
 } // namespace
