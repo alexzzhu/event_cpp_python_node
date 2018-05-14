@@ -138,6 +138,7 @@ LIST(APPEND LINK_LIBS
 
 LIST(APPEND SRCS
   src/event_cpp_python.cpp
+  src/event_cpp_python_live.cpp
   src/undistorter.cpp
   )
 
