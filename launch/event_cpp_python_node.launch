@@ -4,7 +4,7 @@
   <arg name="launch-prefix" default=""/>
   <arg name="n_events_per_window" default="30000"/>
   <arg name="start_time" default="9.5"/>
-  <arg name="read_from_bag" default="false"/>
+
   <arg name="pub_event_arr" default="false"/>
   <arg name="bag_folder_path" default="/mnt/data/mvsec_data/indoor_flying"/>
   <arg name="sequence" default="indoor_flying1"/>
@@ -15,16 +15,11 @@
 
   <node pkg="event_cpp_python_node" type="event_cpp_python_node" name="event_cpp_node" output="screen" required="true" launch-prefix="$(arg launch-prefix)">
     <rosparam command="load" file="$(arg calibration_file)"/>
-    <param name="read_from_bag" type="bool" value="$(arg read_from_bag)"/>
     <param name="data_bag_path" type="str" value="$(arg data_bag_path)"/>
     <param name="gt_bag_path" type="str" value="$(arg gt_bag_path)"/>
     <param name="n_events_per_window" type="int" value="$(arg n_events_per_window)"/>
     <param name="start_time" type="double" value="$(arg start_time)"/>
     <param name="pub_event_arr" type="bool" value="$(arg pub_event_arr)"/>
-    <remap from="left/events" to="/davis/left/events"/>
-    <remap from="right/events" to="/davis/right/events"/>
-    <remap from="pose" to="/davis/left/odometry"/>
-    <remap from="depth_image" to="/davis/left/depth_image_rect"/>
   </node>
 
   <node pkg="event_cpp_python_node" type="event_cpp_python_pynode.py" name="event_python_node" required="true" output="screen">
