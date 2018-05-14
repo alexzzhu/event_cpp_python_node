@@ -51,7 +51,7 @@ class EventCppPython:
         return arr_np
 
     def _event_arr_callback(self, event_arr_msg):
-        events_np = self._ros_array_to_np(event_arr_msg)
+        events_np = _ros_array_to_np(event_arr_msg)
         print("Received events with size {}, {}".format(events_np.shape[0], events_np.shape[1]))
         return
     

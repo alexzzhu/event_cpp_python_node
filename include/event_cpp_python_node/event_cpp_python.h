@@ -45,11 +45,8 @@ private:
     // ROS stuff.
     ros::NodeHandle nh_;
     ros::Publisher left_event_arr_pub_, right_event_arr_pub_;
-    ros::Subscriber left_event_sub_, right_event_sub_;
-
     image_transport::Publisher left_event_time_image_pub_, right_event_time_image_pub_;
     image_transport::ImageTransport it_;
-
     // Objects.
     // Stores camera info, rectifies images.
     Undistorter left_undistorter_, right_undistorter_;
@@ -68,7 +65,7 @@ private:
     bool started_ = false;
     Eigen::Vector4f intrinsics_;
     cv::Mat left_timestamp_image_, right_timestamp_image_;
-    
+
     std::vector<Eigen::Vector4f, 
                 Eigen::aligned_allocator<Eigen::Vector4f>> left_event_vec_, right_event_vec_;
     
