@@ -202,6 +202,8 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
             continue;
         }
 
+        ++n_events_;
+        
         float t = static_cast<float>((event.ts - t_start_).toSec());
         int pol = event.polarity ? 1:-1;
         
@@ -219,8 +221,6 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
             }
         }
     }
-
-    n_events_ += events.size();
 
     // If we have enough events, publish and reset event images.
     if (n_events_ > n_events_per_window_) {
