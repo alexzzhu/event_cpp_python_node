@@ -186,6 +186,8 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
       continue;
     }
 
+    ++n_events_;
+    
     // Store the event in event_vec.
     float t = static_cast<float>((event.ts - t_start_).toSec());
     float pol = event.polarity;
@@ -199,8 +201,6 @@ void EventCppPython::eventCallback(const dvs_msgs::EventArray::ConstPtr& event_m
       ++pixel.val[1];
     }*/
   }
-
-  n_events_ += events.size();
 
   // If we have enough events, publish and reset event images.
   if (n_events_ > n_events_per_window_) {
