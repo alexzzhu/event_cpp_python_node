@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="iso-8859-15"?>
 
 <launch>
-  <!-- Used for debugging with C++ debuggers such as gdb: 
-       http://wiki.ros.org/roslaunch/Tutorials/Roslaunch%20Nodes%20in%20Valgrind%20or%20GDB -->
+  <!--Used for debugging with C++ debuggers such as gdb: 
+       http://wiki.ros.org/roslaunch/Tutorials/Roslaunch%20Nodes%20in%20Valgrind%20or%20GDB-->
   <arg name="launch-prefix" default=""/>
-  <!-- Number of events in each processing window -->
+  <!--Number of events in each processing window-->
   <arg name="n_events_per_window" default="30000"/>
-  <!-- If reading from a ROS bag directly, specifies the timestamp to start reading from the bag -->
+  <!--If reading from a ROS bag directly, specifies the timestamp to start reading from the bag.-->
   <arg name="start_time" default="9.5"/>
-  <!-- If true, will read topics from the ROS bag at $(arg data_bag_path), otherwise will subscribe to topics directly -->
+  <!--If true, will read topics from the ROS bag at $(arg data_bag_path),
+      otherwise will subscribe to topics directly-->
   <arg name="read_from_bag" default="false"/>
-  <!-- If true, events will be sent to the python node as a 4 channel image as in EV-FlowNet. Otherwise, a 4xN matrix will be sent. -->
+  <!-- If true, events will be sent to the python node as a 4 channel image as in EV-FlowNet:
+       https://arxiv.org/abs/1802.06898
+       Otherwise, a 4xN matrix will be sent,
+       where each row contains an event encoded as (x,y,t,p).-->
   <arg name="pub_event_arr" default="false"/>
-  <arg name="bag_folder_path" default="/mnt/data/mvsec_data/indoor_flying"/>
+  <!--File with the calibration for the camera.-->
+  <arg name="calibration_file"/>
+
+  <!--Args to be used if read_from_bag is true, i.e. if you are reading from a bag from MVSEC.-->
+  <!--Path to the folder with the bags.-->
+  <arg name="bag_folder_path" default="~/mvsec"/>
+  <!--Specific sequence to read-->
   <arg name="sequence" default="indoor_flying1"/>
-  <arg name="calib_sequence" default="indoor_flying"/>
+  <!--No need to set these if sequence and bag_folder_path are set.-->
   <arg name="data_bag_path" default="$(arg bag_folder_path)/$(arg sequence)_data.bag"/>
   <arg name="gt_bag_path" default="$(arg bag_folder_path)/$(arg sequence)_gt.bag"/>
-  <arg name="calibration_file" default="$(arg bag_folder_path)/camchain-imucam-$(arg calib_sequence).yaml"/>
 
   <node pkg="event_cpp_python_node" type="event_cpp_python_node" name="event_cpp_node" output="screen" required="true" launch-prefix="$(arg launch-prefix)">
     <rosparam command="load" file="$(arg calibration_file)"/>
