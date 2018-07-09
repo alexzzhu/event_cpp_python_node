@@ -14,8 +14,8 @@ where ${PATH_TO_CALIB_FILE} points to your calibration yaml file. To read from a
 
 where the arguments are once again the path to your data and gt bag from MVSEC.
 
-Running these commands should succeed and print whenever events are received. Your code can then be entered in two places, depending on whether you are writing in C++ or python. For C++ code, [your code can be placed here for live streaming:](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/src/event_cpp_python_live.cpp#L95), [and here for reading from a bag:](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/src/event_cpp_python.cpp#L169)
+Running these commands should succeed and print whenever events are received. Your code can then be entered in two places, depending on whether you are writing in C++ or python. For C++ code, [your code can be placed here for live streaming](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/src/event_cpp_python_live.cpp#L95), [and here for reading from a bag.](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/src/event_cpp_python.cpp#L169)
 
 Note that, when reading from a bag, you also have access to other topics such as the gt pose, depth etc in the callback functions, e.g. depthImageCallback.
 
-[To write code in python, place your code here:](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/python/event_cpp_python.py#L56)
+[To write code in python, place your code here.](https://github.com/alexzzhu/event_cpp_python_node/blob/a0acc31fa996368dce74b7aac3061fd90245520b/python/event_cpp_python.py#L56)
