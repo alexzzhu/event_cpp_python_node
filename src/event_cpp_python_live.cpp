@@ -88,8 +88,10 @@ void EventCppPythonLive::generateAndSendRequest(const ros::Publisher& event_arr_
                                             const std::vector<Eigen::Vector4f,
                                             Eigen::aligned_allocator<Eigen::Vector4f>> event_vec)
 {
-    Eigen::MatrixXf event_mat(4, n_events_per_window_);;
+    Eigen::MatrixXf event_mat(4, n_events_per_window_);
     generateEventMatrix(event_vec, event_mat);
+    // event_mat here is a 4xN matrix, where each column represents an individual event encoded as (x,y,t,p).
+    // If you are writing C++ code, put your code here!
     std_msgs::Float64MultiArray event_arr_msg;
     tf::matrixEigenToMsg(event_mat.cast<double>().eval(), event_arr_msg);
     event_arr_pub.publish(event_arr_msg);
