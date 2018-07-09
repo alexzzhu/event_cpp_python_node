@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-15"?>
 
 <launch>
+  <!-- Used for debugging with C++ debuggers such as gdb: 
+       http://wiki.ros.org/roslaunch/Tutorials/Roslaunch%20Nodes%20in%20Valgrind%20or%20GDB -->
   <arg name="launch-prefix" default=""/>
+  <!-- Number of events in each processing window -->
   <arg name="n_events_per_window" default="30000"/>
+  <!-- If reading from a ROS bag directly, specifies the timestamp to start reading from the bag -->
   <arg name="start_time" default="9.5"/>
+  <!-- If true, will read topics from the ROS bag at $(arg data_bag_path), otherwise will subscribe to topics directly -->
   <arg name="read_from_bag" default="false"/>
+  <!-- If true, events will be sent to the python node as a 4 channel image as in EV-FlowNet. Otherwise, a 4xN matrix will be sent. -->
   <arg name="pub_event_arr" default="false"/>
   <arg name="bag_folder_path" default="/mnt/data/mvsec_data/indoor_flying"/>
   <arg name="sequence" default="indoor_flying1"/>
