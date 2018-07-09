@@ -3,6 +3,8 @@ This repository contains the basic ROS nodes to read events and other messages f
 
 To use this package, you must have the [rpg_dvs_ros](https://github.com/uzh-rpg/rpg_dvs_ros) package compiled in your ROS workspace, and either run the davis_ros_driver package, or play or read a bag from the [MVSEC](https://daniilidis-group.github.io/mvsec/) dataset.
 
+Note that this package is still in development, and will improve in terms of quality and documentation over time.
+
 ## Usage
 This package supports two different methods of operation: reading directly from a ROS bag, or subscribing to events from a topic in real time. To use this package, you will need a calibration for the camera, in the yaml format defined by Kalibr: https://github.com/ethz-asl/kalibr/wiki/yaml-formats. To subscribe to events in real time, run: 
 
