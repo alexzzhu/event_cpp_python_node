@@ -15,18 +15,14 @@
        https://arxiv.org/abs/1802.06898
        Otherwise, a 4xN matrix will be sent,
        where each row contains an event encoded as (x,y,t,p).-->
-  <arg name="pub_event_arr" default="false"/>
+  <arg name="pub_event_arr" default="true"/>
   <!--File with the calibration for the camera.-->
   <arg name="calibration_file"/>
 
   <!--Args to be used if read_from_bag is true, i.e. if you are reading from a bag from MVSEC.-->
-  <!--Path to the folder with the bags.-->
-  <arg name="bag_folder_path" default="~/mvsec"/>
-  <!--Specific sequence to read-->
-  <arg name="sequence" default="indoor_flying1"/>
-  <!--No need to set these if sequence and bag_folder_path are set.-->
-  <arg name="data_bag_path" default="$(arg bag_folder_path)/$(arg sequence)_data.bag"/>
-  <arg name="gt_bag_path" default="$(arg bag_folder_path)/$(arg sequence)_gt.bag"/>
+  <!--Path to the data and gt bags from MVSEC.-->
+  <arg name="data_bag_path" default="~/mvsec/indoor_flying1_data.bg"/>
+  <arg name="gt_bag_path" default="~/mvsec/indoor_flying1_gt.bag"/>
 
   <node pkg="event_cpp_python_node" type="event_cpp_python_node" name="event_cpp_node" output="screen" required="true" launch-prefix="$(arg launch-prefix)">
     <rosparam command="load" file="$(arg calibration_file)"/>
