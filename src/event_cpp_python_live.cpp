@@ -63,7 +63,6 @@ EventCppPythonLive::EventCppPythonLive(ros::NodeHandle nh,
     
     sync_.registerCallback(boost::bind(&EventCppPythonLive::poseDepthCallback, this, _1, _2));
     ROS_INFO("event_cpp_python_live initialized.");
-    
 } // End EventCppPythonLive constructor.
 
 // Grabs the last n_events_per_window_ events from a vector and puts it in an Eigen MatrixXf.
@@ -90,8 +89,11 @@ void EventCppPythonLive::generateAndSendRequest(const ros::Publisher& event_arr_
 {
     Eigen::MatrixXf event_mat(4, n_events_per_window_);
     generateEventMatrix(event_vec, event_mat);
-    // event_mat here is a 4xN matrix, where each column represents an individual event encoded as (x,y,t,p).
+    // event_mat here is a 4xN matrix,
+    // where each column represents an individual event encoded as (x,y,t,p).
     // If you are writing C++ code, put your code here!
+
+    // Publish events to the python node.
     std_msgs::Float64MultiArray event_arr_msg;
     tf::matrixEigenToMsg(event_mat.cast<double>().eval(), event_arr_msg);
     event_arr_pub.publish(event_arr_msg);

@@ -53,6 +53,7 @@ class EventCppPython:
     def _event_arr_callback(self, event_arr_msg):
         events_np = self._ros_array_to_np(event_arr_msg)
         print("Received events with size {}, {}".format(events_np.shape[0], events_np.shape[1]))
+        # Do something with the event arr (4xN numpy array).
         return
     
     def _event_time_image_callback(self, event_time_image_msg):       
@@ -64,6 +65,7 @@ class EventCppPython:
         cv2.imshow("Event time image", np.amax(event_time_image[:, :, :2], axis=2))
         cv2.waitKey(1)
         # Do something with event_time_image
+        
         return
         
     def _load_calib(self, bag_folder, calib_file):
